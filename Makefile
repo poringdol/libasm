@@ -4,8 +4,9 @@ B&W = \033[0;0m
 RED  = \033[0;31m
 GREEN = \033[0;32m
 PURPLE = \033[0;35m
-	
-FLAGS = -Wall -Werror -Wextra -g
+
+FLAGS = -g
+# FLAGS = -Wall -Werror -Wextra -g
 FLAGS_OBJ = -f elf64 -g
 
 CC = gcc
@@ -17,9 +18,9 @@ NAME = libasm.a
 SRC = ft_strlen.s\
 	  ft_strcpy.s\
 	  ft_strcmp.s\
-	  ft_write.s
-#	  ft_read.s
-#	  ft_strdup.s
+	  ft_write.s\
+	  ft_read.s\
+	  ft_strdup.s
 
 TEST = test
 

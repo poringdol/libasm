@@ -1,20 +1,19 @@
-; section .text
-; 	global ft_stcmp
+section .text
+	global ft_write
 
-; section .data
-; 	len	equ	
-
-global	ft_write
-	extern	__errno_location
+extern __errno_location
 
 ft_write:
-	xor		rax, rax
-	xor		rcx, rcx
-	push	rsi
-	mov		rsi, 1		;Value of the cmd F_GETFD, return fd flags, for fcntl
-	mov		rax, 72		;syscall fctnl
+	mov		rax, 1
 	syscall
-	pop		rsi
-	mov		rax, 1		;syscall write
-	syscall
+	cmp		rax, 0
+	jl		error
+	ret
+
+error:
+	neg		rax
+	mov		rbx, rax
+	call	__errno_location wrt ..plt
+	mov		[rax], rbx
+	mov		rax, -1
 	ret
