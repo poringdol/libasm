@@ -43,7 +43,7 @@ clean:
 	@$(RM) $(OBJDIR)
 
 fclean:
-	$(RM) $(OBJDIR) $(NAME) $(TEST)
+	$(RM) $(OBJDIR) $(NAME) $(TEST) *.txt
 
 re: fclean all
 
