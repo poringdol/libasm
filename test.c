@@ -3,17 +3,19 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdlib.h>
 #include <asm/unistd.h>
 #include "libasm.h"
 
-char *test_str[8] = {
-						"test",
-						"test",
-						"test ",
-						"TEST",
-						" !123 teSt %;",
-						"TEst \0tEst",
+#define SIZE 1000
+
+char *test_str[7] = {
+						"|test|",
+						"|test|",
+						"|TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST_TEST|",
 						"",
+						"",
+						"|test_test|",
 						NULL
 };
 
@@ -31,8 +33,8 @@ int	strlen_test()
 
 int	strcpy_test()
 {
-	char	str1[20];
-	char	str2[20];
+	char	str1[SIZE];
+	char	str2[SIZE];
 
 	for (int i = 0; test_str[i]; i++)
 	{
@@ -46,7 +48,7 @@ int	strcpy_test()
 
 int	strcmp_test()
 {
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		int i1 =    strcmp(test_str[i], test_str[i + 1]);
 		int i2 = ft_strcmp(test_str[i], test_str[i + 1]);
@@ -61,21 +63,15 @@ int	write_test()
 	errno = 0;
 	int	fd1 = open("text1.txt", O_RDWR | O_TRUNC | O_CREAT, 0777);
 	int	fd2 = open("text2.txt", O_RDWR | O_TRUNC | O_CREAT, 0777);
-	if (errno) perror("Exit");
 
 	for (int i = 0; test_str[i]; i++)
 	{
 		ssize_t i1 =    write(fd1, test_str[i], strlen(test_str[i]));
-		//    write(1, "\n", 1);
 		ssize_t i2 = ft_write(fd2, test_str[i], strlen(test_str[i]));
-		// ft_write(1, "\n", 1);
-		// perror("Exit");
-		// printf("%li\n", i2);
 		if (i1 != i2)
 			return (printf("\tFAIL ft_write: Expected '%li', received '%li'\n", i1, i2));
-		ft_write(fd2, test_str[i], strlen(test_str[i]));
-		char str1[20] = {0},
-			 str2[20] = {0};
+		char str1[SIZE] = {0},
+			 str2[SIZE] = {0};
 		for (int j = 0, k = 1; k > 0; j++)
 			k = read(fd1, &str1[j], 1);
 		for (int j = 0, k = 1; k > 0; j++)
@@ -83,19 +79,38 @@ int	write_test()
 		if (strcmp(str1, str2))
 			return (printf("\tFAIL ft_write: Expected '%s', received '%s'\n", str1, str2));
 	}
+	close(fd1);
+	close(fd2);
 	return (printf("ft_write passed all tests\n"));
+}
+
+void	write_error_test()
+{
+	int	fd1 = open("text1.txt", O_RDONLY);
+	int	fd2 = open("text2.txt", O_RDONLY);
+
+	errno = 0;
+	write(fd1, " ", 1);
+	perror("\nErrno standart write = ");
+
+	errno = 0;
+	perror("Errno before = ");
+	ft_write(fd2, " ", 1);
+	perror("Errno after = "); printf("\n");
+	close(fd1);
+	close(fd2);
 }
 
 int	read_test()
 {
-	char	str1[20] = {0};
-	char	str2[20] = {0};
-	int	fd1 = open("text1.txt", O_RDWR | O_TRUNC | O_CREAT, 0000);
-	int	fd2 = open("text2.txt", O_RDWR | O_TRUNC | O_CREAT, 0000);
+	char	str1[SIZE] = {0};
+	char	str2[SIZE] = {0};
+	int	fd1 = open("text1.txt", O_RDWR | O_TRUNC | O_CREAT, 0777);
+	int	fd2 = open("text2.txt", O_RDWR | O_TRUNC | O_CREAT, 0777);
 	for (int i = 0; test_str[i]; i++)
 	{
-		write(fd1, test_str[i], test_str[i]);
-		write(fd2, test_str[i], test_str[i]);
+		write(fd1, test_str[i], strlen(test_str[i]));
+		write(fd2, test_str[i], strlen(test_str[i]));
 		ssize_t i1 =    read(fd1, str1, strlen(test_str[i]));
 		ssize_t i2 = ft_read(fd2, str2, strlen(test_str[i]));
 		if (i1 != i2)
@@ -104,6 +119,23 @@ int	read_test()
 			return (printf("\tFAIL ft_read: Expected '%s', received '%s'\n", str1, str2));
 	}
 	return (printf("ft_read passed all tests\n"));
+}
+
+void	read_error_test()
+{
+	int	fd1 = open("text1.txt", O_RDONLY);
+	int	fd2 = open("text2.txt", O_RDONLY);
+
+	errno = 0;
+	read(fd1, "test_string", 11);
+	perror("\nErrno standart write = ");
+
+	errno = 0;
+	perror("Errno before = "); 
+	ft_read(fd2, "test_string", 11);
+	perror("Errno after = "); printf("\n");
+	close(fd1);
+	close(fd2);
 }
 
 int	strdup_test()
@@ -117,8 +149,10 @@ int	strdup_test()
 		str2 = ft_strdup(test_str[i]);
 		if (strcmp(str1, str2))
 			return (printf("\tFAIL ft_strdup: Expected '%s', received '%s'\n", str1, str2));
-		printf("%s\n", str1);
-		printf("%s\n", str2);
+		// printf("%s\n", str1);
+		// printf("%s\n", str2);
+		free(str1);
+		free(str2);
 	}
 	return (printf("ft_strdup passed all tests\n"));
 }
@@ -131,4 +165,6 @@ int	main(void)
 	write_test();
 	read_test();
 	strdup_test();
+	write_error_test();
+	read_error_test();
 }
