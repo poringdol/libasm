@@ -94,6 +94,8 @@ int	read_test()
 	int	fd2 = open("text2.txt", O_RDWR | O_TRUNC | O_CREAT, 0000);
 	for (int i = 0; test_str[i]; i++)
 	{
+		write(fd1, test_str[i], test_str[i]);
+		write(fd2, test_str[i], test_str[i]);
 		ssize_t i1 =    read(fd1, str1, strlen(test_str[i]));
 		ssize_t i2 = ft_read(fd2, str2, strlen(test_str[i]));
 		if (i1 != i2)
